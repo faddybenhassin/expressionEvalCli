@@ -12,7 +12,7 @@ func Eval(expression string) (float64, error) {
 		return 0, fmt.Errorf("empty expression")
 	}
 	tokens, err := infixToPostfix(expression)
-	fmt.Println(tokens)
+
 	if err != nil {
 		fmt.Println("Error:", err)
 		return 0, err
