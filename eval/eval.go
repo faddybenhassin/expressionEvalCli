@@ -12,6 +12,7 @@ func Eval(expression string) (float64, error) {
 		return 0, fmt.Errorf("empty expression")
 	}
 	tokens, err := infixToPostfix(expression)
+	fmt.Println(tokens)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return 0, err
@@ -24,7 +25,7 @@ func Eval(expression string) (float64, error) {
 		}
 		// otherwise its an operator
 		if len(stack) < 2 {
-			return 0, fmt.Errorf("operator \"%q\" requires two operands", token)
+			return 0, fmt.Errorf("operator %q requires two operands", token)
 		}
 		b := stack[len(stack)-1] // pop the last two numbers
 		a := stack[len(stack)-2]
@@ -43,6 +44,8 @@ func Eval(expression string) (float64, error) {
 			stack = append(stack, a/b)
 		case "^":
 			stack = append(stack, math.Pow(a, b))
+		case "u-":
+			stack = append(stack, a, -b)
 		default:
 			return 0, fmt.Errorf("unknown operator %q", token)
 
@@ -50,7 +53,7 @@ func Eval(expression string) (float64, error) {
 	}
 
 	if len(stack) != 1 {
-		return 0, fmt.Errorf("invalid expression: leftover values in stack")
+		return 0, fmt.Errorf("invalid expression leftover values in stack")
 	}
 
 	return stack[0], nil

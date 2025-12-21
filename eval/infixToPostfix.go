@@ -7,6 +7,7 @@ import (
 
 func infixToPostfix(expression string) ([]string, error) {
 	tokens, err := tokenizer(expression)
+
 	if err != nil {
 		return nil, err
 	}
@@ -19,20 +20,22 @@ func infixToPostfix(expression string) ([]string, error) {
 			return 1, nil
 		case "*", "/":
 			return 2, nil
-		case "^":
+		case "u-":
 			return 3, nil
+		case "^":
+			return 4, nil
 		default:
 			return 0, fmt.Errorf("unknown operator %q", op)
 		}
 	}
 
 	isRightAssoc := func(op string) bool {
-		return op == "^"
+		return op == "^" || op == "u-"
 	}
 
 	for _, token := range tokens {
 		if _, err := strconv.ParseFloat(token, 64); err == nil {
-			stack = append(stack, token)
+			output = append(output, token)
 			continue
 		}
 
