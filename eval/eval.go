@@ -42,10 +42,10 @@ func Eval(expression string) (float64, error) {
 				return 0, fmt.Errorf("division by zero")
 			}
 			stack = append(stack, a/b)
-		case "^":
-			stack = append(stack, math.Pow(a, b))
 		case "u-":
 			stack = append(stack, a, -b)
+		case "^":
+			stack = append(stack, math.Pow(a, b))
 		default:
 			return 0, fmt.Errorf("unknown operator %q", token)
 
