@@ -9,6 +9,10 @@ import (
 )
 
 func main() {
+
+	vars := map[string]float64{
+		"pi": 3.14159,
+	}
 	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Println("Calculator started. Type 'exit' or 'quit' to stop.")
@@ -25,11 +29,11 @@ func main() {
 		if expression == "" {
 			continue
 		}
-		if expression == "exit" || expression == "quit" {
+		if expression == "exit" || expression == "quit" || expression == "q" {
 			break
 		}
 
-		res, err := eval.Eval(expression)
+		res, err := eval.Eval(expression, vars)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			// We use continue so one error doesn't crash the whole loop

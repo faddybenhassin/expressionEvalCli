@@ -5,8 +5,8 @@ import (
 	"strconv"
 )
 
-func infixToPostfix(expression string) ([]string, error) {
-	tokens, err := tokenizer(expression)
+func infixToPostfix(expression string, vars map[string]float64) ([]string, error) {
+	tokens, err := tokenizer(expression, vars)
 
 	if err != nil {
 		return nil, err
@@ -35,6 +35,10 @@ func infixToPostfix(expression string) ([]string, error) {
 
 	for _, token := range tokens {
 		if _, err := strconv.ParseFloat(token, 64); err == nil {
+			output = append(output, token)
+			continue
+		}
+		if _, ok := vars[token]; ok {
 			output = append(output, token)
 			continue
 		}
@@ -90,6 +94,5 @@ func infixToPostfix(expression string) ([]string, error) {
 	for i := len(stack) - 1; i >= 0; i-- {
 		output = append(output, stack[i])
 	}
-
 	return output, nil
 }

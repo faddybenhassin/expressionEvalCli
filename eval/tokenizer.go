@@ -6,47 +6,65 @@ import (
 	"unicode"
 )
 
-func tokenizer(expression string) ([]string, error) {
+func tokenizer(expression string, vars map[string]float64) ([]string, error) {
 	isOperator := func(s string) bool {
 		return strings.Contains("+-*/^()", s)
 	}
 
 	tokens := []string{}
 	var numBuffer string
+	var varBuffer string
 
 	// Helper to safely append tokens and check for implicit multiplication
 	addToken := func(newToken string) {
 		if len(tokens) > 0 {
 			lastToken := tokens[len(tokens)-1]
 
-			// Logic: Insert '*' if:
-			// 1. Last was ')' and current is a Number/Variable: (2)3 -> (2)*3
-			// 2. Last was ')' and current is '(': (2)(3) -> (2)*(3)
-			// 3. Last was Number/Variable and current is '(': 2(3) -> 2*(3)
-
 			isLastClosing := lastToken == ")"
 			isCurrentOpening := newToken == "("
 			isLastNumber := unicode.IsDigit(rune(lastToken[0]))
 			isCurrentNumber := unicode.IsDigit(rune(newToken[0]))
-			if newToken == "-" && isOperator(lastToken) && !isLastClosing {
+			_, isLastVariable := vars[lastToken]
+			_, isCurrentVariable := vars[newToken]
+			if newToken == "-" && !isLastNumber && !isLastClosing && !isLastVariable {
 				tokens = append(tokens, "u-")
 				return
 			}
-			if (isLastClosing && (isCurrentOpening || isCurrentNumber)) ||
-				(isLastNumber && isCurrentOpening) {
+			shouldMultiply := (isLastClosing && (isCurrentOpening || isCurrentNumber || isCurrentVariable)) ||
+				(isLastNumber && (isCurrentOpening || isCurrentVariable)) ||
+				(isLastVariable && (isCurrentOpening || isCurrentVariable))
+			if shouldMultiply {
 				tokens = append(tokens, "*")
 			}
+		} else if newToken == "-" {
+			tokens = append(tokens, "u-")
+			return
 		}
 		tokens = append(tokens, newToken)
 	}
 
-	for _, char := range strings.ReplaceAll(expression, " ", "") {
-		if unicode.IsDigit(char) || char == '.' {
+	for _, char := range expression {
+		if unicode.IsSpace(char) {
+			if numBuffer != "" {
+				addToken(numBuffer)
+				numBuffer = ""
+			}
+			if varBuffer != "" {
+				addToken(varBuffer)
+				varBuffer = ""
+			}
+		} else if unicode.IsDigit(char) || char == '.' {
 			numBuffer += string(char)
+		} else if unicode.IsLetter(char) {
+			varBuffer += string(char)
 		} else if isOperator(string(char)) {
 			if numBuffer != "" {
 				addToken(numBuffer)
 				numBuffer = ""
+			}
+			if varBuffer != "" {
+				addToken(varBuffer)
+				varBuffer = ""
 			}
 			addToken(string(char))
 		} else {
@@ -56,6 +74,9 @@ func tokenizer(expression string) ([]string, error) {
 
 	if numBuffer != "" {
 		addToken(numBuffer)
+	}
+	if varBuffer != "" {
+		addToken(varBuffer)
 	}
 
 	return tokens, nil

@@ -7,29 +7,48 @@ import (
 	"strings"
 )
 
-func Eval(expression string) (float64, error) {
+func Eval(expression string, vars map[string]float64) (float64, error) {
 	if strings.TrimSpace(expression) == "" {
 		return 0, fmt.Errorf("empty expression")
 	}
-	tokens, err := infixToPostfix(expression)
 
+	tokens, err := infixToPostfix(expression, vars)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return 0, err
 	}
+
 	stack := []float64{}
 	for _, token := range tokens {
+		// 1. Is it a Number?
 		if num, err := strconv.ParseFloat(token, 64); err == nil {
 			stack = append(stack, num)
 			continue
 		}
-		// otherwise its an operator
-		if len(stack) < 2 {
-			return 0, fmt.Errorf("operator %q requires two operands", token)
+
+		// 2. Is it a Variable?
+		if val, ok := vars[token]; ok {
+			stack = append(stack, val)
+			continue
 		}
-		b := stack[len(stack)-1] // pop the last two numbers
+
+		// 3. Is it Unary Minus?
+		if token == "u-" {
+			if len(stack) < 1 {
+				return 0, fmt.Errorf("stack empty for u-")
+			}
+			stack[len(stack)-1] = -stack[len(stack)-1]
+			continue
+		}
+
+		// 4. Standard Operators
+		if len(stack) < 2 {
+			return 0, fmt.Errorf("missing operands for %s", token)
+		}
+		b := stack[len(stack)-1]
 		a := stack[len(stack)-2]
 		stack = stack[:len(stack)-2]
+
 		switch token {
 		case "+":
 			stack = append(stack, a+b)
@@ -38,17 +57,11 @@ func Eval(expression string) (float64, error) {
 		case "*":
 			stack = append(stack, a*b)
 		case "/":
-			if b == 0 {
-				return 0, fmt.Errorf("division by zero")
-			}
 			stack = append(stack, a/b)
-		case "u-":
-			stack = append(stack, a, -b)
 		case "^":
 			stack = append(stack, math.Pow(a, b))
 		default:
-			return 0, fmt.Errorf("unknown operator %q", token)
-
+			return 0, fmt.Errorf("unknown token: %s", token)
 		}
 	}
 
