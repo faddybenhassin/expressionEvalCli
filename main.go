@@ -4,16 +4,24 @@ import (
 	"bufio"
 	"expressionEvalCli/eval"
 	"fmt"
+	"math"
 	"os"
-	"strconv"
 	"strings"
 )
 
 func main() {
 	// add asigniing variables and make it create ans variable each time
 	vars := map[string]float64{
-		"pi": 3.14159,
+		"pi": math.Pi,
 	}
+	var functions = map[string]func(float64) float64{
+		"sin":  math.Sin,
+		"cos":  math.Cos,
+		"tan":  math.Tan,
+		"sqrt": math.Sqrt,
+		"log":  math.Log,
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Println("Calculator started. Type 'exit' or 'quit' to stop.")
@@ -38,16 +46,16 @@ func main() {
 		if strings.HasPrefix(input, "assign") {
 			parts := strings.Fields(input) // Splits by whitespace
 
-			if len(parts) != 3 {
+			if len(parts) < 3 {
 				fmt.Println("Error: Invalid assign syntax. Use 'assign <name> <value>'")
 				continue
 			}
 
 			varName := parts[1]
-			rawVal := parts[2]
+			rawVal := strings.Join(parts[2:], "")
 
 			// Evaluate the value (this allows 'assign x 5+5')
-			val, err := strconv.ParseFloat(rawVal, 64)
+			val, err := eval.Eval(rawVal, vars, functions)
 			if err != nil {
 				fmt.Printf("Error evaluating value: %q\n", rawVal)
 				continue
@@ -60,7 +68,7 @@ func main() {
 		}
 
 		// 3. Regular expression evaluation
-		res, err := eval.Eval(input, vars)
+		res, err := eval.Eval(input, vars, functions)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			continue

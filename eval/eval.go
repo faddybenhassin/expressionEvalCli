@@ -7,12 +7,13 @@ import (
 	"strings"
 )
 
-func Eval(expression string, vars map[string]float64) (float64, error) {
+func Eval(expression string, vars map[string]float64, functions map[string]func(float64) float64) (float64, error) {
+
 	if strings.TrimSpace(expression) == "" {
 		return 0, fmt.Errorf("empty expression")
 	}
 
-	tokens, err := infixToPostfix(expression, vars)
+	tokens, err := infixToPostfix(expression, vars, functions)
 	if err != nil {
 		return 0, err
 	}
@@ -31,6 +32,15 @@ func Eval(expression string, vars map[string]float64) (float64, error) {
 			continue
 		}
 
+		if fn, ok := functions[token]; ok {
+			if len(stack) < 1 {
+				return 0, fmt.Errorf("stack empty for function %s", token)
+			}
+			// Pop the top value, apply function, push result back
+			val := stack[len(stack)-1]
+			stack[len(stack)-1] = fn(val)
+			continue
+		}
 		// 3. Is it Unary Minus?
 		if token == "u-" {
 			if len(stack) < 1 {

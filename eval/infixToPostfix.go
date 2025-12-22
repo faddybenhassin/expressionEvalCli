@@ -5,8 +5,8 @@ import (
 	"strconv"
 )
 
-func infixToPostfix(expression string, vars map[string]float64) ([]string, error) {
-	tokens, err := tokenizer(expression, vars)
+func infixToPostfix(expression string, vars map[string]float64, functions map[string]func(float64) float64) ([]string, error) {
+	tokens, err := tokenizer(expression)
 
 	if err != nil {
 		return nil, err
@@ -24,13 +24,24 @@ func infixToPostfix(expression string, vars map[string]float64) ([]string, error
 			return 3, nil
 		case "^":
 			return 4, nil
-		default:
-			return 0, fmt.Errorf("undefined variable or invalid token %q", op)
 		}
+		if _, ok := functions[op]; ok {
+			return 5, nil
+		}
+
+		return 0, fmt.Errorf("undefined variable or invalid token %q", op)
+
 	}
 
 	isRightAssoc := func(op string) bool {
-		return op == "^" || op == "u-"
+		switch op {
+		case "^", "u-":
+			return true
+		}
+		if _, ok := functions[op]; ok {
+			return true
+		}
+		return false
 	}
 
 	for _, token := range tokens {

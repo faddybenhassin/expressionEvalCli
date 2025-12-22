@@ -6,7 +6,7 @@ import (
 	"unicode"
 )
 
-func tokenizer(expression string, vars map[string]float64) ([]string, error) {
+func tokenizer(expression string) ([]string, error) {
 	isOperator := func(s string) bool {
 		return strings.Contains("+-*/^()", s)
 	}
@@ -22,17 +22,21 @@ func tokenizer(expression string, vars map[string]float64) ([]string, error) {
 
 			isLastClosing := lastToken == ")"
 			isCurrentOpening := newToken == "("
-			isLastNumber := unicode.IsDigit(rune(lastToken[0]))
-			isCurrentNumber := unicode.IsDigit(rune(newToken[0]))
-			_, isLastVariable := vars[lastToken]
-			_, isCurrentVariable := vars[newToken]
-			if newToken == "-" && !isLastNumber && !isLastClosing && !isLastVariable {
-				tokens = append(tokens, "u-")
+			isLastNumber := unicode.IsDigit(rune(lastToken[0])) || lastToken[0] == '.'
+			isCurrentNumber := unicode.IsDigit(rune(newToken[0])) || newToken[0] == '.'
+
+			// Check for Name: Starts with letter, but IS NOT our internal "u-"
+			isLastName := unicode.IsLetter(rune(lastToken[0])) && lastToken != "u-"
+			isCurrentName := unicode.IsLetter(rune(newToken[0])) && newToken != "u-"
+			if (newToken == "-" || newToken == "+") && !isLastNumber && !isLastClosing && !isCurrentName {
+				if newToken == "-" {
+					tokens = append(tokens, "u-")
+				}
 				return
 			}
-			shouldMultiply := (isLastClosing && (isCurrentOpening || isCurrentNumber || isCurrentVariable)) ||
-				(isLastNumber && (isCurrentOpening || isCurrentVariable)) ||
-				(isLastVariable && (isCurrentOpening || isCurrentVariable))
+			shouldMultiply := (isLastClosing && (isCurrentOpening || isCurrentNumber || isCurrentName)) ||
+				(isLastNumber && (isCurrentOpening || isCurrentName)) ||
+				(isLastName && (isCurrentOpening || isCurrentName))
 			if shouldMultiply {
 				tokens = append(tokens, "*")
 			}
