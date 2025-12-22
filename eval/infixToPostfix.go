@@ -18,7 +18,7 @@ func infixToPostfix(expression string, vars map[string]float64, functions map[st
 		switch op {
 		case "+", "-":
 			return 1, nil
-		case "*", "/":
+		case "*", "/", "%":
 			return 2, nil
 		case "u-":
 			return 3, nil

@@ -8,7 +8,7 @@ import (
 
 func tokenizer(expression string) ([]string, error) {
 	isOperator := func(s string) bool {
-		return strings.Contains("+-*/^()", s)
+		return strings.Contains("+-*/^()%", s)
 	}
 
 	tokens := []string{}

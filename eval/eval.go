@@ -67,6 +67,8 @@ func Eval(expression string, vars map[string]float64, functions map[string]func(
 			stack = append(stack, a*b)
 		case "/":
 			stack = append(stack, a/b)
+		case "%":
+			stack = append(stack, math.Mod(a, b))
 		case "^":
 			stack = append(stack, math.Pow(a, b))
 		default:
