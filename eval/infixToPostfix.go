@@ -6,7 +6,7 @@ import (
 )
 
 func infixToPostfix(expression string, vars map[string]float64, functions map[string]func(float64) float64) ([]string, error) {
-	tokens, err := tokenizer(expression)
+	tokens, err := tokenizer(expression, vars, functions)
 
 	if err != nil {
 		return nil, err

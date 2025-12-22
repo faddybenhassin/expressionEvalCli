@@ -77,6 +77,7 @@ func Eval(expression string, vars map[string]float64, functions map[string]func(
 	}
 
 	if len(stack) != 1 {
+		print(len(stack))
 		return 0, fmt.Errorf("invalid expression leftover values in stack")
 	}
 
