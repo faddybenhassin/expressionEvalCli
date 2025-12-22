@@ -35,7 +35,7 @@ func main() {
 		}
 
 		// 2. Handle "assign <var> <val>"
-		if strings.HasPrefix(input, "assign ") {
+		if strings.HasPrefix(input, "assign") {
 			parts := strings.Fields(input) // Splits by whitespace
 
 			if len(parts) != 3 {
