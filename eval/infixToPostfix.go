@@ -25,7 +25,7 @@ func infixToPostfix(expression string, vars map[string]float64) ([]string, error
 		case "^":
 			return 4, nil
 		default:
-			return 0, fmt.Errorf("unknown operator %q", op)
+			return 0, fmt.Errorf("undefined variable or invalid token %q", op)
 		}
 	}
 
@@ -65,6 +65,7 @@ func infixToPostfix(expression string, vars map[string]float64) ([]string, error
 			}
 			continue
 		}
+
 		precToken, err := getPrecedence(token)
 		if err != nil {
 			return nil, err

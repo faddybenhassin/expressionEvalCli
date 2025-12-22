@@ -14,7 +14,6 @@ func Eval(expression string, vars map[string]float64) (float64, error) {
 
 	tokens, err := infixToPostfix(expression, vars)
 	if err != nil {
-		fmt.Println("Error:", err)
 		return 0, err
 	}
 
@@ -69,5 +68,7 @@ func Eval(expression string, vars map[string]float64) (float64, error) {
 		return 0, fmt.Errorf("invalid expression leftover values in stack")
 	}
 
+	// create or change ans variable storing last result
+	vars["ans"] = stack[0]
 	return stack[0], nil
 }
