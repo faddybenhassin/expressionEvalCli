@@ -13,18 +13,19 @@ func main() {
 	// add asigniing variables and make it create ans variable each time
 	vars := map[string]float64{
 		"pi": math.Pi,
+		"e":  math.E,
 	}
 	var functions = map[string]func(float64) float64{
 		"sin":  math.Sin,
 		"cos":  math.Cos,
 		"tan":  math.Tan,
 		"sqrt": math.Sqrt,
-		"log":  math.Log,
+		"ln":   math.Log,
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
 
-	fmt.Println("Calculator started. Type 'exit' or 'quit' to stop.")
+	fmt.Println("Calculator started. Type 'q' to stop.")
 
 	for {
 		fmt.Print("> ")
@@ -38,7 +39,7 @@ func main() {
 		if input == "" {
 			continue
 		}
-		if input == "exit" || input == "quit" || input == "q" {
+		if input == "q" {
 			break
 		}
 
