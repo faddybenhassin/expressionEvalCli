@@ -62,7 +62,7 @@ func Eval(expression string, vars map[string]float64, functions map[string]func(
 		if len(stack) < 2 {
 			return 0, fmt.Errorf("missing operands for %s", token)
 		}
-		
+
 		// Order matters: 'b' is the top (right operand), 'a' is below it (left operand)
 		b := stack[len(stack)-1]
 		a := stack[len(stack)-2]
